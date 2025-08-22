@@ -4,10 +4,19 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import PostForm from "@/components/PostForm";
 
+// Post as used in frontend
+type Post = {
+    _id: string;
+    title: string;
+    description: string;
+    date: string;
+    images: string[];
+};
+
 export default function EditPostPage() {
     const { _id } = useParams();
     const router = useRouter();
-    const [post, setPost] = useState<any>(null);
+    const [post, setPost] = useState<Post | null>(null);
 
     useEffect(() => {
         const fetchPost = async () => {

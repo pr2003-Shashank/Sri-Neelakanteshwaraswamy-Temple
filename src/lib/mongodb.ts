@@ -8,11 +8,17 @@ interface Cached {
   promise: Promise<typeof mongoose> | null;
 }
 
-// @ts-ignore
-let cached: Cached = global.mongoose || { conn: null, promise: null };
+// Extend NodeJS global type so TypeScript knows about our cached connection
+declare global {
+  // eslint-disable-next-line no-var
+  var mongoose: Cached | undefined;
+}
 
-// @ts-ignore
-if (!global.mongoose) global.mongoose = cached;
+const cached: Cached = global.mongoose ?? { conn: null, promise: null };
+
+if (!global.mongoose) {
+  global.mongoose = cached;
+}
 
 export async function connectDB() {
   if (cached.conn) return cached.conn;
@@ -24,6 +30,7 @@ export async function connectDB() {
       })
       .then((m) => m);
   }
+
   cached.conn = await cached.promise;
   return cached.conn;
 }

@@ -5,6 +5,19 @@ import { useRouter } from "next/navigation";
 import PostCard from "@/components/PostCard";
 import ConfirmModal from "@/components/ConfirmModal";
 
+// Post as stored in MongoDB
+type RawPost = {
+  _id: string;
+  title: string;
+  description: string;
+  date: string;
+  images?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
+};
+
+// Post as used in frontend
 type Post = {
   _id: string;
   title: string;
@@ -35,7 +48,7 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
+  const [confirmAction, setConfirmAction] = useState<() => void>(() => { });
 
   const loadPosts = useCallback(async () => {
     setLoading(true);
@@ -45,17 +58,9 @@ export default function DashboardPage() {
       if (!res.ok) throw new Error(`GET /api/posts failed ${res.status}`);
       const json = await res.json();
 
-      const raw: any[] = Array.isArray(json) ? json : json.posts ?? [];
-      const normalized: Post[] = raw.map((p: any) => {
-        const urls: string[] = Array.isArray(p.imageUrls)
-          ? p.imageUrls
-          : Array.isArray(p.images)
-          ? p.images
-          : typeof p.images === "string"
-          ? p.images.split(/,\s*/)
-          : typeof p.imageUrls === "string"
-          ? p.imageUrls.split(/,\s*/)
-          : [];
+      const raw: RawPost[] = Array.isArray(json) ? json : json.posts ?? [];
+      const normalized: Post[] = raw.map((p) => {
+        const urls: string[] = Array.isArray(p.images) ? p.images : [];
 
         return {
           _id: String(p._id),
@@ -67,8 +72,14 @@ export default function DashboardPage() {
       });
 
       setPosts(normalized);
-    } catch (e: any) {
-      setError(e?.message || "Failed to fetch posts");
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        setError(e.message);
+      } else if (typeof e === "string") {
+        setError(e);
+      } else {
+        setError("Failed to fetch posts");
+      }
     } finally {
       setLoading(false);
     }

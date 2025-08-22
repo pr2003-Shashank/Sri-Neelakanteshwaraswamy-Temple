@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 
 type PostFormProps = {
   initialData?: {
@@ -21,24 +21,6 @@ export default function PostForm({ initialData, onSuccess }: PostFormProps) {
   const [date, setDate] = useState(initialData?.date || "");
   const [images, setImages] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>(initialData?.images || []);
-
-  useEffect(() => {
-    if (isEdit && initialData) {
-      setTitle(initialData.title || "");
-      setDescription(initialData.description || "");
-      setDate(initialData.date || "");
-      setExistingImages(initialData.images || []);
-      console.log(existingImages);
-
-      setImages([]); // reset new images on edit
-    } else {
-      setTitle("");
-      setDescription("");
-      setDate("");
-      setExistingImages([]);
-      setImages([]);
-    }
-  }, [initialData]);
 
   // Add more images
   const handleAddImages = (files: FileList | null) => {

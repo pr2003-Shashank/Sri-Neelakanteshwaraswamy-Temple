@@ -14,8 +14,21 @@ cloudinary.config({
 export async function GET() {
   try {
     await connectDB();
-    const posts = await Post.find().sort({ createdAt: -1 }).lean();
-    return NextResponse.json({ success: true, posts });
+
+    // Fetch posts, sorted newest first
+    const posts = await Post.find({})
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Ensure ObjectId is converted to string and Dates to ISO
+    const serializedPosts = posts.map((post) => ({
+      ...post,
+      _id: post._id.toString(),
+      createdAt: post.createdAt?.toISOString?.() ?? null,
+      updatedAt: post.updatedAt?.toISOString?.() ?? null,
+    }));
+
+    return NextResponse.json({ success: true, posts: serializedPosts });
   } catch (err) {
     console.error("Error fetching posts:", err);
     return NextResponse.json({ error: "Failed to fetch posts" }, { status: 500 });

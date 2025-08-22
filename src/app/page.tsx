@@ -12,6 +12,20 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
+
+// Post as stored in MongoDB
+type RawPost = {
+  _id: string;
+  title: string;
+  description: string;
+  date: string;
+  images?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
+};
+
+// Post as used in frontend
 type Post = {
   _id: string;
   title: string;
@@ -48,17 +62,9 @@ export default function Home() {
       if (!res.ok) throw new Error(`GET /api/posts failed ${res.status}`);
       const json = await res.json();
 
-      const raw: any[] = Array.isArray(json) ? json : json.posts ?? [];
-      const normalized: Post[] = raw.map((p: any) => {
-        const urls: string[] = Array.isArray(p.imageUrls)
-          ? p.imageUrls
-          : Array.isArray(p.images)
-            ? p.images
-            : typeof p.images === "string"
-              ? p.images.split(/,\s*/)
-              : typeof p.imageUrls === "string"
-                ? p.imageUrls.split(/,\s*/)
-                : [];
+      const raw: RawPost[] = Array.isArray(json) ? json : json.posts ?? [];
+      const normalized: Post[] = raw.map((p) => {
+        const urls: string[] = Array.isArray(p.images) ? p.images : [];
 
         return {
           _id: String(p._id),
@@ -70,8 +76,14 @@ export default function Home() {
       });
 
       setPosts(normalized);
-    } catch (e: any) {
-      setError(e?.message || "Failed to fetch posts");
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        setError(e.message);
+      } else if (typeof e === "string") {
+        setError(e);
+      } else {
+        setError("Failed to fetch posts");
+      }
     } finally {
       setLoading(false);
     }
@@ -166,7 +178,7 @@ export default function Home() {
         <p className="max-w-3xl mx-auto">
           ಶ್ರೀ ನೀಲಕಂಠೇಶ್ವರ ಸ್ವಾಮಿ ದೇವಾಲಯ - ಶ್ರೀ ಜಂಗಮ ಸಂಸ್ಥಾನ ಮಠ, ಗುರುಪುರ (ಕೈಕಂಬ), ಮಂಗಳೂರು
           ಫಾಲ್ಗುಣಿ (ಗುರುಪುರ) ನದೀತೀರದಲ್ಲಿ ಅಲೆಮಾರುತ್ತಿರುವ ಧಾರ್ಮಿಕ–ಸಾಂಸ್ಕೃತಿಕ ಪರಂಪರೆಯ ಹೊಳಪನ್ನು ಹೊತ್ತ ನಮ್ಮ ದೇವಸ್ಥಾನವು ಶೈವ ಭಕ್ತಿಯ ಕೇಂದ್ರವಾಗಿದ್ದು, ಶತಮಾನಗಳಿಂದ ಗುರುಪುರ ಪಟ್ಟಣದ ಆಧ್ಯಾತ್ಮಿಕ ಜೀವನಕ್ಕೆ ಬೆಳಕು ನೀಡುತ್ತಿದೆ. ದೇವಾಲಯವು ಶ್ರೀ ಜಂಗಮ ಸಂಸ್ಥಾನ ಮಠದೊಂದಿಗೆ ಅಂತರ್‌ಘಟಿತವಾಗಿ ಕಾರ್ಯನಿರ್ವಹಿಸಿ, ಭಕ್ತರಿಗೆ ನಿತ್ಯಪೂಜೆ, ಅಭಿಷೇಕ–ಆಲಂಕಾರ ಹಾಗು ವಿಶೇಷ ಹೋಮ–ಹವನಗಳ ಮೂಲಕ ಶಿವತತ್ತ್ವದ ಸಂದೇಶವನ್ನು ಪಸರಿಸುತ್ತದೆ.
-      
+
           ಗುರುಪುರ ಪ್ರದೇಶವು ಇತಿಹಾಸ ಪ್ರಸಿದ್ಧ ದೇವಾಲಯಗಳಿಂದ ಪ್ರಸಿದ್ಧವಾಗಿರುವ ತೀರ್ಥ ಕ್ಷೇತ್ರ. ಇಲ್ಲಿ ನಡೆಯುವ ವಾರ್ಷಿಕ ಉತ್ಸವಗಳು ಮತ್ತು “ಗುರ್ಪುರ ತೆರು” ಮುಂತಾದ ಸಂಪ್ರದಾಯಗಳು ಸ್ಥಳೀಯ ಸಮುದಾಯವನ್ನು ಒಂದಾಗಿಸುತ್ತವೆ. ನಮ್ಮ ದೇವಾಲಯವು ಭಕ್ತರ ಸೇವೆ, ಧಾರ್ಮಿಕ ಶಿಕ್ಷಣ, ಹಾಗೂ ಸಂಸ್ಕೃತಿಯ ಉಳಿವು–ಬೆಳವಣಿಗೆಗೆ ಬದ್ಧವಾಗಿದೆ.
 
           ಇತ್ತೀಚೆಗೆ ದೇವಾಲಯ–ಮಠ ಸಂಕೀರ್ಣದ ಜೀರ್ಣೋದ್ಧಾರ ಕಾರ್ಯಗಳ ಅಂಗವಾಗಿ ಬಾಲಾಲಯ ಪ್ರತಿಷ್ಠಾಪನೆ (ಆಗಸ್ಟ್ 21, 2025) ನೆರವೇರಿತು. ಪೀಠಾಧಿಪತಿಗಳ ಸನ್ನಿಧಾನದಲ್ಲಿ ನಡೆದ ರುದ್ರಾಭಿಷೇಕ, ರುದ್ರಪಾರಾಯಣ ಮತ್ತು ರುದ್ರಹೋಮಗಳೊಂದಿಗೆ ಭವ್ಯ ವಿಧಿವಿಧಾನಗಳು ಜರುಗಿದವು. ಭವಿಷ್ಯದಲ್ಲಿ ಭಕ್ತರಿಗೆ ಹೆಚ್ಚು ಸುಸಜ್ಜಿತ ಸೌಲಭ್ಯಗಳನ್ನು ಒದಗಿಸುವ ದೃಷ್ಟಿಯಿಂದ ಮೂಲಸೌಕರ್ಯ ಸುಧಾರಣೆಗಳು ನಡೆಯುತ್ತಿವೆ.
