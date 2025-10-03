@@ -4,6 +4,9 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import PostCard from "@/components/PostCard";
 import ConfirmModal from "@/components/ConfirmModal";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import ImageUploader from "@/components/ui/image-uploader";
 
 // Post as stored in MongoDB
 type RawPost = {
@@ -26,6 +29,14 @@ type Post = {
   imageUrls: string[];
 };
 
+// Gallery types
+type GalleryImage = {
+  _id: string;
+  url: string;
+  title?: string;
+  createdAt?: string;
+};
+
 function optimizeCloudinary(url?: string, width = 800) {
   if (!url) return "";
   try {
@@ -43,12 +54,20 @@ function optimizeCloudinary(url?: string, width = 800) {
 
 export default function DashboardPage() {
   const router = useRouter();
+
+  //post states
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // modal states
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState<() => void>(() => { });
+
+  // gallery states
+  const [gallery, setGallery] = useState<GalleryImage[]>([]);
+  const [galleryLoading, setGalleryLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const loadPosts = useCallback(async () => {
     setLoading(true);
@@ -85,6 +104,29 @@ export default function DashboardPage() {
     }
   }, []);
 
+  const loadGallery = useCallback(async () => {
+    setGalleryLoading(true);
+    try {
+      const res = await fetch("/api/gallery", { cache: "no-store" });
+      if (!res.ok) throw new Error(`GET /api/gallery failed ${res.status}`);
+      const json = await res.json();
+      const raw: any[] = Array.isArray(json.images) ? json.images : [];
+
+      const normalized: GalleryImage[] = raw.map((img) => ({
+        _id: String(img._id),
+        url: optimizeCloudinary(img.url, 800),
+        title: img.title ?? "",
+        createdAt: img.createdAt ?? "",
+      }));
+
+      setGallery(normalized);
+    } catch (err) {
+      console.error("Failed to load gallery:", err);
+    } finally {
+      setGalleryLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     const isAdmin = localStorage.getItem("isAdmin");
     if (!isAdmin) {
@@ -92,7 +134,8 @@ export default function DashboardPage() {
       return;
     }
     loadPosts();
-  }, [router, loadPosts]);
+    loadGallery();
+  }, [router, loadPosts, loadGallery]);
 
   // DELETE with confirm
   const handleDelete = (_id: string) => {
@@ -115,55 +158,85 @@ export default function DashboardPage() {
     setShowConfirmModal(true);
   };
 
+  // Handle Gallery Upload
+  const handleGalleryUpload = async (fileList: FileList) => {
+    if (!fileList || fileList.length === 0) return;
+
+    const formData = new FormData();
+    Array.from(fileList).forEach((f) => formData.append("images", f));
+
+    try {
+      setUploading(true);
+      const res = await fetch("/api/gallery", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Failed to upload gallery images");
+      await loadGallery();
+    } catch (err) {
+      console.error("Gallery upload error:", err);
+      alert("Error uploading images to gallery");
+    }
+    finally {
+      setUploading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-8">
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-yellow-700">
-          Admin Dashboard
-        </h1>
-        <button
-          onClick={() => router.push("/dashboard/posts/new")}
-          className="bg-yellow-700 text-white px-4 py-2 rounded-lg shadow hover:bg-yellow-800 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-        >
-          + Create Post
-        </button>
-      </div>
+    <div className="flex flex-col p-4 md:p-8">
+      <h1 className="text-xl md:text-2xl font-bold mb-2 text-yellow-900">
+        Admin Dashboard
+      </h1>
 
-      {/* States */}
-      {loading && <p className="mt-6 text-gray-600">Loading posts…</p>}
-      {error && <p className="mt-6 text-red-600">Error: {error}</p>}
-      {!loading && !error && posts.length === 0 && (
-        <p className="mt-6 text-gray-600">No posts yet. Create the first one!</p>
-      )}
+      {/* Manage posts */}
+      <div className="flex flex-col bg-yellow-50 m-1">
+        <div className="flex items-center justify-between p-2">
+          <h1 className="text-base md:text-xl text-yellow-900">
+            Manage Posts
+          </h1>
+          <Button
+            onClick={() => router.push("/dashboard/posts/new")}
+            className="bg-yellow-900 text-yellow-200 text-sm px-4 py-2 rounded-lg shadow hover:bg-yellow-800 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+          >
+            Create Post
+          </Button>
+        </div>
 
-      {/* Grid */}
-      <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {posts.map((post) => (
-          <div key={post._id} className="relative">
-            <PostCard
-              title={post.title}
-              description={post.description}
-              date={post.date}
-              imageUrl={post.imageUrls[0]}
-            />
-            <div className="flex gap-2 justify-center pb-4">
-              <button
-                onClick={() => router.push(`/dashboard/posts/${post._id}/edit`)}
-                className="px-3 py-1 text-sm bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(post._id)}
-                className="px-3 py-1 text-sm bg-yellow-800 text-white rounded-lg hover:bg-yellow-900 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              >
-                Delete
-              </button>
+        {/* States */}
+        {loading && <p className="m-6 text-yellow-900">Loading posts…</p>}
+        {error && <p className="m-6 text-yellow-900">Error: {error}</p>}
+        {!loading && !error && posts.length === 0 && (
+          <p className="m-6 text-yellow-900">No posts yet.</p>
+        )}
+
+        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {posts.map((post) => (
+            <div key={post._id} className="relative bg-gradient-to-b from-yellow-100 to-yellow-200 p-4 rounded-lg shadow-md">
+              <PostCard
+                title={post.title}
+                description={post.description}
+                date={post.date}
+                imageUrl={post.imageUrls[0]}
+              />
+              <div className="flex flex-row gap-2 justify-center pb-4">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push(`/dashboard/posts/${post._id}/edit`)}
+                  className="text-sm bg-yellow-600 text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                >
+                  Edit
+                </Button>
+                <Button
+                  onClick={() => handleDelete(post._id)}
+                  className="text-sm bg-yellow-800 text-white rounded-lg hover:bg-yellow-900 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                >
+                  Delete
+                </Button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-
       {/* Confirm (delete) */}
       <ConfirmModal
         isOpen={showConfirmModal}
@@ -171,6 +244,43 @@ export default function DashboardPage() {
         onConfirm={confirmAction}
         message="Are you sure you want to delete this post?"
       />
-    </div>
+      {/* Manage Gallery */}
+      <div className="flex flex-col bg-yellow-50 m-1">
+        <div className="flex items-center justify-between p-2">
+          <h1 className="text-base md:text-xl text-yellow-900">
+            Manage Gallery
+          </h1>
+          <ImageUploader onFilesSelected={handleGalleryUpload} loading={uploading} />
+        </div>
+        {galleryLoading && (
+          <p className="m-6 text-yellow-900">Loading gallery…</p>
+        )}
+
+        {!galleryLoading && gallery.length === 0 && (
+          <p className="m-6 text-yellow-900">No gallery images yet.</p>
+        )}
+
+        <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {gallery.map((img) => (
+            <div
+              key={img._id}
+              className="bg-gradient-to-b from-yellow-100 to-yellow-200 p-2 rounded-lg shadow"
+            >
+              {/* use optimized cloudinary */}
+              <div className="relative w-full h-56">
+                <Image
+                  src={img.url}
+                  alt={img.title || ''}
+                  className="object-cover"
+                  fill
+                  unoptimized
+                  priority={false}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div >
   );
 }

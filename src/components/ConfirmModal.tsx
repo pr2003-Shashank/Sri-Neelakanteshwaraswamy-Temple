@@ -31,7 +31,7 @@ export default function ConfirmModal({
               onConfirm();
               onClose();
             }}
-            className="px-4 py-2 rounded-lg bg-yellow-700 text-white hover:bg-yellow-800 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            className="px-4 py-2 rounded-lg bg-yellow-900 text-white hover:bg-yellow-800 focus:outline-none focus:ring-2 focus:ring-yellow-500"
           >
             Confirm
           </button>

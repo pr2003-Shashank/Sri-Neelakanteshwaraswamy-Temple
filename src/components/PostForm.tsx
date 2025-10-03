@@ -1,6 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
 
 type PostFormProps = {
   initialData?: {
@@ -82,44 +86,48 @@ export default function PostForm({ initialData, onSuccess }: PostFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2 p-2 bg-yellow-50 w-full">
       {/* Title */}
-      <label className="block">
-        <span className="text-sm text-gray-700">Title</span>
-        <textarea
+      <div className="grid w-full items-center gap-3">
+        <Label htmlFor="title">Title</Label>
+        <Textarea
+          id="title"
           required
           rows={2}
           placeholder="Title"
-          className="mt-1 w-full border rounded-lg p-2"
+          className="bg-white w-full"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
-      </label>
+      </div>
 
       {/* Description */}
-      <label className="block">
-        <span className="text-sm text-gray-700">Description</span>
-        <textarea
+      <div className="grid w-full items-center gap-3">
+        <Label htmlFor="title">Description</Label>
+        <Textarea
+          id="description"
           required
           rows={6}
           placeholder="Description"
-          className="mt-1 w-full border rounded-lg p-2"
           value={description}
+          className="bg-white w-full"
           onChange={(e) => setDescription(e.target.value)}
         />
-      </label>
+      </div>
 
       {/* Date */}
-      <label className="block">
-        <span className="text-sm text-gray-700">Date</span>
-        <input
+      <div className="grid w-full items-center gap-3">
+        <Label htmlFor="date">Date</Label>
+        <Input
+          id="date"
           type="date"
           required
-          className="mt-1 w-full border rounded-lg p-2"
           value={date}
+          placeholder="dd/mm/yyyy"
+          className="bg-white w-full"
           onChange={(e) => setDate(e.target.value)}
         />
-      </label>
+      </div>
 
       {/* Existing images (edit mode) */}
       {isEdit && existingImages.length > 0 && (
@@ -147,16 +155,19 @@ export default function PostForm({ initialData, onSuccess }: PostFormProps) {
       )}
 
       {/* New images */}
-      <label className="block">
-        <span className="text-sm text-gray-700">Add Photos</span>
-        <input
+      <div className="grid w-full items-center gap-3">
+        <Label htmlFor="date">Add Photos</Label>
+        <Input
+          id="files"
           type="file"
           multiple
           accept="image/*"
-          className="mt-1 w-full border rounded-lg p-2"
+          capture={undefined}
+          required
+          className="bg-white w-full"
           onChange={(e) => handleAddImages(e.target.files)}
         />
-      </label>
+      </div>
 
       {images.length > 0 && (
         <div className="mt-2 grid grid-cols-3 gap-2">
@@ -180,13 +191,13 @@ export default function PostForm({ initialData, onSuccess }: PostFormProps) {
       )}
 
       {/* Buttons */}
-      <div className="flex justify-end gap-2">
-        <button
+      <div className="flex justify-end">
+        <Button
           type="submit"
-          className="px-4 py-2 rounded-lg bg-yellow-700 text-white hover:bg-yellow-800 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+          className="bg-yellow-900 text-white hover:bg-yellow-800 focus:outline-none focus:ring-2 focus:ring-yellow-500"
         >
           {isEdit ? "Update" : "Create"}
-        </button>
+        </Button>
       </div>
     </form>
   );

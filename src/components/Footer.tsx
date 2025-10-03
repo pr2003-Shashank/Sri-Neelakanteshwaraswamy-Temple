@@ -3,7 +3,7 @@ import { FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
 
 export default function Footer() {
   return (
-    <footer className="bg-yellow-700 text-white">
+    <footer className="bg-gradient-to-r from-yellow-100 to-yellow-300 text-yellow-900">
       {/* Top Section */}
       <div className="max-w-7xl mx-auto px-4 py-4 flex flex-row justify-between items-center border-b border-yellow-600">
         <Link href="/" className="flex items-center">
@@ -14,7 +14,7 @@ export default function Footer() {
               className="w-full h-full object-cover"
             />
           </div>
-          <span className="ml-3 text-xl font-semibold text-white hidden sm:block">Sri Neelakanteshwaraswamy Temple</span>
+          <span className="ml-3 text-xl font-semibold text-yellow-900 hidden sm:block">ಶ್ರೀ ನೀಲಕಂಠೇಶ್ವರ ಸ್ವಾಮಿ ದೇವಸ್ಥಾನ</span>
         </Link>
 
         {/* Social Icons */}
@@ -23,41 +23,43 @@ export default function Footer() {
             href="https://instagram.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-gray-200"
+            className="hover:text-yellow-600"
           >
-            <FaInstagram size={20} />
+            <FaInstagram size={28} />
           </a>
           <a
             href="https://facebook.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-gray-200"
+            className="hover:text-yellow-600"
           >
-            <FaFacebook size={20} />
+            <FaFacebook size={28} />
           </a>
           <a
             href="https://www.youtube.com/@Neelakanteshwaraswamy-Gurupura"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-gray-200"
+            className="hover:text-yellow-600"
           >
-            <FaYoutube size={20} />
+            <FaYoutube size={28} />
           </a>
         </div>
       </div>
 
       {/* Bottom Section */}
-      <div className="text-center py-3 text-xs font-light bg-yellow-700">
-        © {new Date().getFullYear()} Sri Neelakanteshwaraswamy Temple. All
-        rights reserved.
+      <div className="flex flex-col sm:flex-row justify-center gap-3 items-center py-3 text-xs ">
+        <p className="text-center">
+          © {new Date().getFullYear()} Sri Neelakanteshwaraswamy Temple. All
+          rights reserved.
+        </p>
+        <div className="flex">
+          <Link href="/login"
+            className="flex bg-yellow-900 hover:bg-yellow-800 p-1 rounded text-xs text-yellow-100"
+          >
+            Admin Login
+          </Link>
+        </div>
       </div>
-      <div className="flex justify-end max-w-7xl mx-auto flex "> 
-        <Link href="/login" 
-        className="flex bg-yellow-900 hover:bg-yellow-800 m-3 p-3 rounded text-xs" 
-        >
-         Admin Login 
-         </Link> 
-         </div>
     </footer>
   );
 }

@@ -1,111 +1,121 @@
-"use client";
+"use client"
+import React, { FC } from "react"
+import { useRouter } from "next/navigation"
+import { Avatar, AvatarImage } from "@/components/ui/avatar"
+import Link from "next/link"
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu"
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { cn } from "@/lib/utils"
+import { Button } from "./ui/button"
+import { Menu } from "lucide-react"
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+const Header: FC = () => {
+  const router = useRouter()
 
-export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  // Close menu when clicking on a link
-  const closeMenu = () => setIsMenuOpen(false);
-
-  // Handle scroll effect for header
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
+  const handleNavigate = (href: string) => {
+    router.push(href)
+  }
   return (
-    <header className={`sticky w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-2' : 'bg-white/90 py-4'}`}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center">
-          {/* Logo */}
-          <Link href="/" className="flex items-center" onClick={closeMenu}>
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
-              <img
-                src="https://res.cloudinary.com/dnumk8kl0/image/upload/v1755845882/logo_ywarix.png"
-                alt="Sri Neelakanteshwaraswamy Temple"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <span className="ml-3 text-xl font-semibold text-gray-800 hidden sm:block">Sri Neelakanteshwaraswamy Temple</span>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
-            <NavLink href="/#about" text="About" />
-            <NavLink href="/#posts" text="Posts" />
-            <NavLink href="/#contact" text="Contact" />
-          </nav>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              {isMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden mt-4 pb-4">
-            <nav className="flex flex-col space-y-3">
-              <MobileNavLink href="/#about" text="About" onClick={closeMenu} />
-              <MobileNavLink href="/#posts" text="Posts" onClick={closeMenu} />
-              <MobileNavLink href="/#contact" text="Contact" onClick={closeMenu} />
-            </nav>
-          </div>
-        )}
+    <div className="flex flex-row p-2 justify-between items-center w-full top-0 left-0 bg-gradient-to-r from-yellow-100 to-yellow-300 shadow-md">
+      <div className="flex flex-row gap-2 items-center">
+        <Avatar className="w-[48px] h-[48px]">
+          <AvatarImage src="https://res.cloudinary.com/dnumk8kl0/image/upload/v1755845882/logo_ywarix.png" />
+        </Avatar>
+        <span className="font-sans text-sm md:text-xl md:flex font-semibold text-yellow-900">ಶ್ರೀ ನೀಲಕಂಠೇಶ್ವರ ಸ್ವಾಮಿ ದೇವಸ್ಥಾನ</span>
       </div>
-    </header>
-  );
+      <div className="flex flex-row gap-2 hidden md:flex">
+        <NavigationMenu>
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), 'hover:bg-white/30 rounded-md text-base text-yellow-900')}>
+                <Link href="/#posts">ಪೋಸ್ಟ್</Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), 'hover:bg-white/30 rounded-md text-base text-yellow-900')}>
+                <Link href="/#gallery">ಗ್ಯಾಲರಿ</Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), 'hover:bg-white/30 rounded-md text-base text-yellow-900')}>
+                <Link href="/#history">ಇತಿಹಾಸ</Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), 'hover:bg-white/30 rounded-md text-base text-yellow-900')}>
+                <Link href="/#renovation">ಜೀರ್ಣೋದ್ಧಾರ</Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+      </div>
+      <Sheet>
+        <SheetTrigger className="md:hidden">
+          <div className="flex md:hidden bg-yellow-100 border-2 border-yellow-200 p-2 rounded-md hover:bg-yellow-300">
+            <Menu size={16} />
+          </div>
+        </SheetTrigger>
+
+        <SheetContent className="w-1/2 bg-yellow-50 animate-in slide-in-from-right-80 duration-300">
+          <SheetHeader>
+            <SheetTitle className="sr-only">Mobile Navbar</SheetTitle>
+            <SheetDescription className="sr-only">
+              Om Namah Shivaya
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="flex flex-col w-full gap-2">
+            <SheetClose asChild>
+              <Button
+                className="flex w-full border border-yellow-200 bg-yellow-100  hover:bg-white/30 rounded-md text-base text-yellow-900"
+                onClick={() => handleNavigate("/#posts")}
+              >
+                ಪೋಸ್ಟ್
+              </Button>
+            </SheetClose>
+            <SheetClose asChild>
+              <Button
+                className="flex w-full border border-yellow-200 bg-yellow-100  hover:bg-white/30 rounded-md text-base text-yellow-900"
+                onClick={() => handleNavigate("/#gallery")}
+              >
+                ಗ್ಯಾಲರಿ
+              </Button>
+            </SheetClose>
+            <SheetClose asChild>
+              <Button
+                className="flex w-full border border-yellow-200 bg-yellow-100 hover:bg-white/30 text-base text-yellow-900"
+                onClick={() => handleNavigate("/#history")}
+              >
+                ಇತಿಹಾಸ
+              </Button>
+            </SheetClose>
+            <SheetClose asChild>
+              <Button
+                className="flex w-full border border-yellow-200 bg-yellow-100  hover:bg-white/30 rounded-md text-base text-yellow-900"
+                onClick={() => handleNavigate("/#renovation")}
+              >
+                ಜೀರ್ಣೋದ್ಧಾರ
+              </Button>
+            </SheetClose>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </div>
+  )
 }
 
-// Reusable NavLink component for desktop
-function NavLink({ href, text }: { href: string; text: string }) {
-  return (
-    <Link
-      href={href}
-      className="text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200 relative group"
-    >
-      {text}
-      <span className="absolute left-0 bottom-0 h-0.5 w-0 bg-indigo-600 transition-all duration-300 group-hover:w-full"></span>
-    </Link>
-  );
-}
-
-// Reusable NavLink component for mobile
-function MobileNavLink({ href, text, onClick }: { href: string; text: string; onClick: () => void }) {
-  return (
-    <Link
-      href={href}
-      onClick={onClick}
-      className="block px-4 py-2 text-gray-700 hover:text-indigo-600 hover:bg-gray-50 rounded-md transition-colors duration-200 font-medium"
-    >
-      {text}
-    </Link>
-  );
-}
+export default Header;
