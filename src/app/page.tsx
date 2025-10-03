@@ -117,7 +117,7 @@ export default function Home() {
       const res = await fetch("/api/gallery", { cache: "no-store" });
       if (!res.ok) throw new Error(`GET /api/gallery failed ${res.status}`);
       const json = await res.json();
-      const raw: any[] = Array.isArray(json.images) ? json.images : [];
+      const raw: GalleryImage[] = Array.isArray(json.images) ? json.images : [];
 
       const normalized: GalleryImage[] = raw.map((img) => ({
         _id: String(img._id),
@@ -159,7 +159,7 @@ export default function Home() {
         {loading && <div className="flex my-6 w-full items-center justify-center text-yellow-900">
           <Loader2 className="h-4 w-4 animate-spin" />
         </div>}
-        {error && <div className="m-6 text-yellow-900">Sorry couldn't fetch post</div>}
+        {error && <div className="m-6 text-yellow-900">Sorry could not fetch post</div>}
         {!loading && !error && posts.length === 0 && (
           <p className="m-6 text-yellow-900">No posts yet.</p>
         )}
@@ -178,6 +178,8 @@ export default function Home() {
               768: { slidesPerView: 2 }, // md
               1024: { slidesPerView: 3 } // lg+
             }}
+            centerInsufficientSlides={true}
+
           >
             {posts.map((post) => (
               <SwiperSlide key={post._id}>
@@ -208,15 +210,15 @@ export default function Home() {
         {galleryLoading && <div className="flex my-6 w-full items-center justify-center text-yellow-900">
           <Loader2 className="h-4 w-4 animate-spin" />
         </div>}
-        {galleryError && <div className="m-6 text-yellow-900">Sorry couldn't fetch images from the gallery</div>}
+        {galleryError && <div className="m-6 text-yellow-900">Sorry could not fetch images from the gallery</div>}
         {!galleryLoading && !galleryError && gallery.length === 0 && (
           <p className="m-6 text-yellow-900">No images in the gallery yet.</p>
         )}
         <EmblaCarousel
-         images={imageUrls} 
-         options={{loop:true}}
-         autoplay 
-         autoplayDelay={4000} />
+          images={imageUrls}
+          options={{ loop: true }}
+          autoplay
+          autoplayDelay={4000} />
 
       </section>
 

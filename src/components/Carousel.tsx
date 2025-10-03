@@ -2,14 +2,9 @@
 import React, { useState, useEffect, useCallback, useRef } from "react"
 import useEmblaCarousel from "embla-carousel-react"
 import type { EmblaOptionsType } from "embla-carousel"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "./ui/button";
+
 
 type EmblaCarouselProps = {
   images: string[]
@@ -27,13 +22,18 @@ const EmblaCarousel: React.FC<EmblaCarouselProps> = ({
   className,
 }) => {
   const [selectedIndex, setSelectedIndex] = useState(0)
-  const [modalImage, setModalImage] = useState<string | null>(null)
 
   const [emblaMainRef, emblaMainApi] = useEmblaCarousel(options)
   const [emblaThumbsRef, emblaThumbsApi] = useEmblaCarousel({
     containScroll: "keepSnaps",
     dragFree: true,
   })
+
+  const [current, setCurrent] = useState<number | null>(null);
+
+  const close = () => setCurrent(null);
+  const prev = () => setCurrent((c) => (c! > 0 ? c! - 1 : images.length - 1));
+  const next = () => setCurrent((c) => (c! < images.length - 1 ? c! + 1 : 0));
 
   const autoplayRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -79,39 +79,56 @@ const EmblaCarousel: React.FC<EmblaCarouselProps> = ({
       <div className="overflow-hidden" ref={emblaMainRef}>
         <div className="flex">
           {images.map((src, index) => (
-            <Dialog key={index} onOpenChange={(open) => !open && setModalImage(null)}>
-              <DialogTrigger asChild>
-                <div
-                  className="flex-[0_0_100%] px-2 cursor-pointer"
-                  onClick={() => setModalImage(src)}
-                >
-                  <img
-                    src={src}
-                    alt={`Slide ${index + 1}`}
-                    className="w-full h-72 object-cover rounded-xl shadow-md"
-                  />
-                </div>
-              </DialogTrigger>
-              <DialogContent className="flex flex-col w-fit max-w-5xl p-0 border-0 bg-yellow-100 shadow-none">
-                <DialogHeader>
-                  <DialogTitle className="sr-only">Are you absolutely sure?</DialogTitle>
-                  <DialogDescription className="sr-only">
-                    This action cannot be undone. This will permanently delete your account
-                    and remove your data from our servers.
-                  </DialogDescription>
-                </DialogHeader>
-                {modalImage && (
-                  <img
-                    src={modalImage}
-                    alt="Full Image"
-                    className="max-h-[90vh] max-w-full object-contain rounded-lg"
-                  />
-                )}
-              </DialogContent>
-            </Dialog>
+            <div
+              key={index}
+              className="flex-[0_0_100%] px-2 cursor-pointer"
+              onClick={() => setCurrent(index)} 
+            >
+              <img
+                src={src}
+                alt={`Slide ${index + 1}`}
+                className="w-full h-72 object-cover rounded-xl shadow-md"
+              />
+            </div>
           ))}
         </div>
       </div>
+
+      {/* Fullscreen lightbox */}
+      {current !== null && (
+        <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
+          {/* Close button */}
+          <Button
+            onClick={close}
+            className="absolute top-4 right-4 text-white rounded-full text-2xl"
+          >
+            <X />
+          </Button>
+
+          {/* Prev button */}
+          <Button
+            onClick={prev}
+            className="absolute bg-yellow-100 rounded-full left-4 text-yellow-900 text-2xl"
+          >
+            <ChevronLeft className="h-6 w-6 md:h-10 md:w-10"/>
+          </Button>
+
+          {/* Next button */}
+          <Button
+            onClick={next}
+            className="absolute right-4 bg-yellow-100 text-yellow-900 rounded-full text-2xl"
+          >
+            <ChevronRight className="h-6 w-6 md:h-10 md:w-10"/>
+          </Button>
+
+          {/* Image */}
+          <img
+            src={images[current]}
+            alt=""
+            className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-lg"
+          />
+        </div>
+      )}
 
       {/* Thumbnails */}
       <div className="mt-4 overflow-hidden" ref={emblaThumbsRef}>

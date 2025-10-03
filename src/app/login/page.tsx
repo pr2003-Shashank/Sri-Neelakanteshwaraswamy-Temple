@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button"
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -69,6 +68,7 @@ export default function LoginPage() {
                   </div>
                   <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
                 </div>
+                {error && <span className="text-xs text-red-900">{error}</span>}
               </div>
             </form>
           </CardContent>

@@ -63,3 +63,31 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Failed to upload to gallery" }, { status: 500 });
   }
 }
+
+// DELETE /api/gallery/:id → delete image from MongoDB & Cloudinary
+export async function DELETE(req: Request) {
+  try {
+    await connectDB();
+    const { _id } = await req.json();
+    if (!_id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+    // Find the image doc
+
+    const imageDoc = await Gallery.findById(_id);
+    if (!imageDoc) {
+      return NextResponse.json({ error: "Image not found" }, { status: 404 });
+    }
+
+    // Delete from Cloudinary (using stored publicId)
+    if (imageDoc.publicId) {
+      await cloudinary.uploader.destroy(imageDoc.publicId);
+    }
+
+    // Delete from MongoDB
+    await Gallery.findByIdAndDelete(_id);
+
+    return NextResponse.json({ success: true, message: "Image deleted successfully" });
+  } catch (err) {
+    console.error("Error in DELETE /api/gallery:", err);
+    return NextResponse.json({ error: "Failed to delete image" }, { status: 500 });
+  }
+}
