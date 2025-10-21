@@ -28,7 +28,7 @@ export default function Footer() {
             <FaInstagram size={28} />
           </a>
           <a
-            href="https://facebook.com"
+            href="https://www.facebook.com/share/1FJsya9z1b/"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-yellow-600"
