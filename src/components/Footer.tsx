@@ -56,7 +56,7 @@ export default function Footer() {
           <Link href="/login"
             className="flex bg-yellow-900 hover:bg-yellow-800 p-1 rounded text-xs text-yellow-100"
           >
-            Admin Login
+            Admin
           </Link>
         </div>
       </div>
